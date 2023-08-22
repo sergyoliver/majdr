@@ -9,7 +9,7 @@ if (isset($_POST['codecam']) ) {
     $i = 0;
     $camp=$_POST['codecam'];
     $tp=$_POST['periode'];
-?>
+    ?>
 
 
     <option  >Tous</option>

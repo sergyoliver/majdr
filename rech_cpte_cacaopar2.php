@@ -1,157 +1,12 @@
 <?php // Connection à la base de données
-//session_start();
 //error_reporting(0);
 include '../connexion/connectpg.php';
 include '../connexion/function.php';
 
 if (isset($_POST['camp']) ) {
-    // validation de la parcelle
-    $camp = $_POST['camp'];
-    $dep = $_POST['dep'];
-    $idp = $_POST['idpa'];
-    $idpar = $_POST['pa'];
-
-$reqdel = $bdd->prepare("SELECT *  from departements WHERE code_departement = :dep ");
-$reqdel->execute(array("dep" => $_POST['dep']));
-$rowdel =$reqdel->fetch();
-$del = $rowdel['delegation_code'];
-    //echo  "SELECT *  from comptage_cacaos WHERE  an_campagne = '$camp' AND delegation_code = '$rowdel['delegation_code']' AND departement_code = '$dep' AND id_passage_periode = '$idp' and parcelle_code ='$idpar'";
-
-    // on recherche la donnée avant la mise à jour
-    $sqlverif = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND id_passage_periode = :p and parcelle_code = :par");
-    $sqlverif->execute(array("an" => $_POST['camp'],"dl" => $rowdel['delegation_code'],"dp" => $_POST['dep'],"p" => $_POST['idpa'],"par" => $_POST['pa']));
-    $nbreverifie =$sqlverif->rowCount();
-    if ($nbreverifie>0){
-
-        $rsql1 = $bdd->prepare('UPDATE comptage_cacaos SET valider=:valider, datevalide=:datevalide 
- WHERE   an_campagne = :an_campagne AND delegation_code = :delegation_code AND departement_code = :departement_code 
- AND id_passage_periode = :id_passage_periode and parcelle_code = :parcelle_code');
-
-         $rsql1->execute(array('valider' => 1, 'datevalide' => gmdate("Y-m-d H:i:s")
-         ,"an_campagne" => $_POST['camp'],"delegation_code" => $rowdel['delegation_code'],"departement_code" => $_POST['dep']
-         ,"id_passage_periode" => $_POST['idpa'],"parcelle_code" => $_POST['pa']));
-          /*/*
-
-        var_dump( array('valider' => 1, 'datevalide' => gmdate("Y-m-d H:i:s")
-         ,"an_campagne" => $_POST['camp'],"delegation_code" => $_POST['del'],"departement_code" => $_POST['dep']
-         ,"id_passage_periode" => $_POST['idpa'],"parcelle_code" => $_POST['pa']));*/
-
-        // passage precedent
-        function obtenir_fruitprec($idp,$camp,$idcomp){
-            include '../connexion/connectpg.php';
-            // include '../connexion/function.php';
-            $rspassage = $bdd->prepare("select * from passage_periodes where type_pied='K' and id= :idp ");
-            $rspassage->execute(array("idp"=>$idp));
-            $rowpassage = $rspassage->fetch();
-            $numero_passage = $rowpassage['nump'];
-            if ($numero_passage>1){
-                $num_passage_prec = $numero_passage-1;
-                //echo  "select * from passage_periodes where type_pied='K' and nump= '$num_passage_prec' and campagne= '$camp' ";
-                $rspassagepre = $bdd->prepare("select * from passage_periodes where type_pied='K' and nump= :n and campagne= :c ");
-                $rspassagepre->execute(array("n"=>$num_passage_prec,"c"=>$camp));
-                $rowpassageprec = $rspassagepre->fetch();
-                if (isset($rowpassageprec['id']))  { $idpassage_prec = $rowpassageprec['id']; }
-
-            }else{
-                $taban =  explode("-", $_POST['camp']);
-                $an1 = $taban[0]-1;
-                $an2 = $taban[1]-1;
-                $campagne_prec = $an1."-".$an2;
-                $rspassagepre = $bdd->prepare("select * from passage_periodes where type_pied='K' and nump= :n and campagne='$campagne_prec' ");
-                $rspassagepre->execute(array("n"=>10));
-                $rowpassageprec = $rspassagepre->fetch();
-                if (isset($rowpassageprec['id']) and !empty($rowpassageprec['id'])){
-                    $idpassage_prec = $rowpassageprec['id'];
-                }else{
-                    $rspassagepre = $bdd->prepare("select * from passage_periodes where type_pied='K' and nump= :n and campagne='$campagne_prec' ");
-                    $rspassagepre->execute(array("n"=>10));
-                    //$rowpassageprec = $rspassagepre->fetch();
-                    $idpassage_prec = "";
-                }
-            }
-            //echo $idpassage_prec;
-            if (!empty($idpassage_prec)){
-                $sqlverif_1 = $bdd->prepare("SELECT fruit_a, fruit_b from comptage_cacaos WHERE  id = :id  ");
-                $sqlverif_1->execute(array("id" =>$idcomp));
-                $compfruit_prec =$sqlverif_1->fetch();
-                $fa = $compfruit_prec['fruit_a'];
-                $fb = $compfruit_prec['fruit_b'];
-            }else{
-                $fa = 0;
-                $fb = 0;
-            }
-            return array($fa,$fb);
-            //return
-
-        }
-
-
-
-
-
-        // calcul des pertes
-        while ($rowcal_perte =$sqlverif->fetch()) {
-
-            // echo   obtenir_fruitprec($idp,$camp,$rowcal_perte['id']);
-            list($fruita,$fruitb )=  obtenir_fruitprec($idp,$camp,$rowcal_perte['id']);
-            if($fruita>0){
-
-                $pa = $rowcal_perte['fruit_b']-$fruita;
-                if ($pa>0){
-                    $perteA= $pa;
-                }else{
-                    $perteA =0;
-                }
-            }else{
-                $perteA =0;
-            }
-            if($fruitb>0){
-
-                $pb = $rowcal_perte['fruit_c']-$fruitb;
-                if ($pb>0){
-                    $perteB = $pb;
-                }else{
-                    $perteB=0;
-                }
-
-            }else{
-                $perteB =0;
-            }
-            /*  echo " Fruit A n-1 ".$fruita. " Fruit b n".$rowcal_perte['fruit_b'];
-              echo " Fruit B n-1 ".$fruitb. " Fruit c n".$rowcal_perte['fruit_c'];
-                echo "<br />";
-             echo $rowcal_perte['id']." - >";
-             echo "Perte A = ".$perteA ." et Perte B = ".$perteB;
-             echo "<br />";*/
-
-            $rsqlupd = $bdd->prepare('UPDATE comptage_cacaos SET pertes_a=:pertes_a, pertes_b=:pertes_b 
- WHERE   id = :id ');
-            $rsqlupd->execute(array('pertes_a' => $perteA, "pertes_b" => $perteB,"id" => $rowcal_perte['id']));
-        }
-    }
-
-
 
     ?>
     <div class="row">
-        <div  class="col-lg-12 input_field_sections">
-            <?php if ($_POST['pa']!=='Tous'){
-                // on recherche la donnée avant la mise à jour
-                //echo "SELECT *  from comptage_cacaos WHERE  an_campagne ='$camp' AND delegation_code = '$del' AND departement_code ='$dep' AND id_passage_periode = '$idp' and parcelle_code = '$idpar' and valider=0";
-                $sqlverif24 = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND id_passage_periode = :p and parcelle_code = :par and valider=0");
-                $sqlverif24->execute(array("an" => $_POST['camp'],"dl" =>$rowdel['delegation_code'],"dp" => $_POST['dep'],"p" => $_POST['idpa'],"par" => $_POST['pa']));
-                $nbreverifie24 = $sqlverif24->rowCount();
-                //echo $nbreverifie24;
-
-                if ($nbreverifie24 > 0){
-                    echo 'je suis la';
-
-                    ?>
-                    <div>
-                        <a href="#valider<?php echo $_POST['pa']  ?>"  data-toggle="modal" class="btn btn-outline-danger layout_btn_prevent">Valider les données de la parcelle </a>
-                    </div>
-                <?php } }  ?>
-        </div>
         <div class="col-lg-12 input_field_sections">
 
             <table id="example2" class="table table-striped  table-bordered table_res dataTable  ">
@@ -186,41 +41,12 @@ $del = $rowdel['delegation_code'];
                 <?php
 
                 $i=1;
-
-                if ($_POST['pa']=='Tous' ){
-                    if ($_POST['vil']=='Tous' or $_POST['vil']=='vide'){
-                        $sqlcp = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND id_passage_periode = :p ");
-                        $sqlcp->execute(array("an" => $_POST['camp'],"dl" => $rowdel['delegation_code'],"dp" => $_POST['dep'],"p" => $_POST['idpa']));
-                    }else{
-                        $sqlcp = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND village_code = :v  AND id_passage_periode = :p  ");
-                        $sqlcp->execute(array("an" => $_POST['camp'],"dl" => $rowdel['delegation_code'],"dp" => $_POST['dep'],"v" => $_POST['vil'],"p" => $_POST['idpa']));
-
-                    }
-
+                if ($_POST['vil']=='Tous' or $_POST['vil']=='vide'){
+                    $sqlcp = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND  departement_code = :dp AND id_passage_periode = :p ");
+                    $sqlcp->execute(array("an" => $_POST['camp'],"dp" => $_POST['dep'],"p" => $_POST['idpa']));
                 }else{
-
-                    if ($_POST['idpa']=='Tous') {
-                        if ($_POST['vil'] == 'Tous' or $_POST['vil'] == 'vide') {
-                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND  parcelle_code = :par ");
-                            $sqlcp->execute(array("an" => $_POST['camp'], "dl" => $rowdel['delegation_code'], "dp" => $_POST['dep'],  "par" => $_POST['pa']));
-                        } else {
-                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND village_code = :v  AND parcelle_code = :par ");
-                            $sqlcp->execute(array("an" => $_POST['camp'], "dl" => $rowdel['delegation_code'], "dp" => $_POST['dep'], "v" => $_POST['vil'],  "par" => $_POST['pa']));
-
-                        }
-                    }else{
-
-                        if ($_POST['vil'] == 'Tous' or $_POST['vil'] == 'vide') {
-                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND id_passage_periode = :p AND parcelle_code = :par ");
-                            $sqlcp->execute(array("an" => $_POST['camp'], "dl" => $rowdel['delegation_code'], "dp" => $_POST['dep'], "p" => $_POST['idpa'], "par" => $_POST['pa']));
-                        } else {
-                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND village_code = :v  AND id_passage_periode = :p AND parcelle_code = :par ");
-                            $sqlcp->execute(array("an" => $_POST['camp'], "dl" => $rowdel['delegation_code'], "dp" => $_POST['dep'], "v" => $_POST['vil'], "p" => $_POST['idpa'], "par" => $_POST['pa']));
-
-                        }
-
-                    }
-
+                    $sqlcp = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an  AND departement_code = :dp AND village_code = :v  AND id_passage_periode = :p ");
+                    $sqlcp->execute(array("an" => $_POST['camp'],"dp" => $_POST['dep'],"v" => $_POST['vil'],"p" => $_POST['idpa']));
 
                 }
 
@@ -231,7 +57,7 @@ $del = $rowdel['delegation_code'];
                     $sqlp->execute(array("c" => $code_pied));
                     $rowp = $sqlp->fetch();
 
-                    $del= $row['delegation_code'];
+                    $del = $row['delegation_code'];
                     $sqldel = $bdd->prepare("SELECT *  from delegations WHERE code_delegation= :c  ");
                     $sqldel->execute(array("c" => $del));
                     $rowdel = $sqldel->fetch();
@@ -255,10 +81,10 @@ $del = $rowdel['delegation_code'];
                     $sqlparcelle = $bdd->prepare("SELECT *  from parcelles WHERE code_parcelle= :c  ");
                     $sqlparcelle->execute(array("c" => $codepar));
                     $rowpar = $sqlparcelle->fetch();
-
-                    $idpassage = $row['id_passage_periode'];
-                    $rsp = $bdd->prepare("select * from passage_periodes WHERE id = :p  and type_pied='K'  ");
+                    $idpassage = $row['idpassage'];
+                    $rsp = $bdd->prepare("select * from passages WHERE id = :p  and type_pied='K'  ");
                     $rsp->execute(array('p'=>$idpassage));
+                    $rowpa = $rsp->fetch();
                     ?>
                     <tr>
                         <td> <?php echo $i;  ?></td>
@@ -488,42 +314,6 @@ $del = $rowdel['delegation_code'];
 
             </table>
 
-        </div>
-    </div>
-    <div class="modal fade bs-example-modal-sm" id="valider<?php echo $_POST['pa']  ?>" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="false" style="z-index: 3000000">
-        <div class="modal-dialog modal-sm rounded">
-            <div class="modal-content">
-                <div class="modal-header bg-danger">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title text-white">Valider les comptages  <?php
-                        if ($_POST['pa']!=='Tous') {
-                            $sqlparcelle1 = $bdd->prepare("SELECT *  from parcelles WHERE code_parcelle= :c  ");
-                            $sqlparcelle1->execute(array("c" => $_POST['pa']));
-                            $rowparn = $sqlparcelle1->fetch();
-
-                        }
-
-                        ?></h4>
-                </div>
-                <div class="modal-body">
-
-                    <div class="row">
-
-                        <h3 style="color: green; text-align: center"> Parcelle: <?php echo  $rowparn['nom_parcelle']; ?></h3>
-
-                        <input type="text" value="<?php echo  $_POST['dep']; ?>" id="departement" hidden>
-                        <input type="text" value="<?php echo  $_POST['vil']; ?>" id="village" hidden>
-                        <input type="text" value="<?php echo $rowdel['delegation_code']; ?>" id="delegation" hidden>
-                    </div>
-
-                    <br>
-                    <hr>
-
-                    <div class="input-group d-flex">
-                        &nbsp;<a href="javascript:void(0);" data-dismiss="modal" type="button" class="btn btn-danger pull-right" onclick="validerp('<?php echo $_POST['pa']  ?>','<?php echo $_POST['camp']  ?>','<?php echo $_POST['idpa']  ?>')">Valider</a>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <?php

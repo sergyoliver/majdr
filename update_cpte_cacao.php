@@ -10,9 +10,9 @@ if (isset($_POST['id']) ) {
 fruit_d=:fruit_d,pertes_a=:pertes_a,pertes_b=:pertes_b,fe=:fe,flo=:flo,Noue=:Noue,id_modification=:id_modification,
 date_modification=:date_modification,raison_supp=:raison_supp
                                WHERE id = :id ');
-$tb_upd=array('fruit_a' => $_POST['a'],'fruit_b' => $_POST['b'], 'fruit_c' => $_POST['c'],
-    'pertes_a' => $_POST['pa'], 'pertes_b' => $_POST['pb'], 'fe' => $_POST['fe'],'flo' => $_POST['flo'],'Noue' => $_POST['noue'],
-    'id_modification'=> $_SESSION['id'], 'date_modification'=> gmdate("Y-m-d H:i:s"),'raison_supp'=>$_POST['obs'],'obsr'=>$_POST['obsr'],'id'=>$_POST['id']);
+    $tb_upd=array('fruit_a' => $_POST['a'],'fruit_b' => $_POST['b'], 'fruit_c' => $_POST['c'],
+        'pertes_a' => $_POST['pa'], 'pertes_b' => $_POST['pb'], 'fe' => $_POST['fe'],'flo' => $_POST['flo'],'Noue' => $_POST['noue'],
+        'id_modification'=> $_SESSION['id'], 'date_modification'=> gmdate("Y-m-d H:i:s"),'raison_supp'=>$_POST['obs'],'obsr'=>$_POST['obsr'],'id'=>$_POST['id']);
     var_dump($tb_upd);
 
     $tab = $rsql1->execute();

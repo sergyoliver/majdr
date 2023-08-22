@@ -1,5 +1,5 @@
 <?php // Connection à la base de données
-session_start();
+
 //error_reporting(0);
 include '../connexion/connectpg.php';
 include '../connexion/function.php';
@@ -11,8 +11,8 @@ if (isset($_POST['camp']) ) {
         <div  class="col-lg-12 input_field_sections">
             <?php if ($_POST['pa']!=='Tous'){
                 // on recherche la donnée avant la mise à jour
-                $sqlverif = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND id_passage_periode = :p and parcelle_code = :par and valider=0");
-                $sqlverif->execute(array("an" => $_POST['camp'],"dl" => $_SESSION['zone'],"dp" => $_POST['dep'],"p" => $_POST['idpa'],"par" => $_POST['pa']));
+                $sqlverif = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND  departement_code = :dp AND id_passage_periode = :p and parcelle_code = :par and valider=0");
+                $sqlverif->execute(array("an" => $_POST['camp'],"dp" => $_POST['dep'],"p" => $_POST['idpa'],"par" => $_POST['pa']));
                 $nbreverifie = $sqlverif->rowCount();
 
                 if ($nbreverifie>0){
@@ -60,11 +60,11 @@ if (isset($_POST['camp']) ) {
 
                 if ($_POST['pa']=='Tous' ){
                     if ($_POST['vil']=='Tous' or $_POST['vil']=='vide'){
-                        $sqlcp = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND id_passage_periode = :p ");
-                        $sqlcp->execute(array("an" => $_POST['camp'],"dl" => $_SESSION['zone'],"dp" => $_POST['dep'],"p" => $_POST['idpa']));
+                        $sqlcp = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND  departement_code = :dp AND id_passage_periode = :p ");
+                        $sqlcp->execute(array("an" => $_POST['camp'],"dp" => $_POST['dep'],"p" => $_POST['idpa']));
                     }else{
-                        $sqlcp = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND village_code = :v  AND id_passage_periode = :p  ");
-                        $sqlcp->execute(array("an" => $_POST['camp'],"dl" => $_SESSION['zone'],"dp" => $_POST['dep'],"v" => $_POST['vil'],"p" => $_POST['idpa']));
+                        $sqlcp = $bdd->prepare("SELECT *  from comptage_cacaos WHERE  an_campagne = :an AND  departement_code = :dp AND village_code = :v  AND id_passage_periode = :p  ");
+                        $sqlcp->execute(array("an" => $_POST['camp'],"dp" => $_POST['dep'],"v" => $_POST['vil'],"p" => $_POST['idpa']));
 
                     }
 
@@ -72,21 +72,21 @@ if (isset($_POST['camp']) ) {
 
                     if ($_POST['idpa']=='Tous') {
                         if ($_POST['vil'] == 'Tous' or $_POST['vil'] == 'vide') {
-                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND  parcelle_code = :par ");
-                            $sqlcp->execute(array("an" => $_POST['camp'], "dl" => $_SESSION['zone'], "dp" => $_POST['dep'],  "par" => $_POST['pa']));
+                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND departement_code = :dp AND  parcelle_code = :par ");
+                            $sqlcp->execute(array("an" => $_POST['camp'], "dp" => $_POST['dep'],  "par" => $_POST['pa']));
                         } else {
-                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND village_code = :v  AND parcelle_code = :par ");
-                            $sqlcp->execute(array("an" => $_POST['camp'], "dl" => $_SESSION['zone'], "dp" => $_POST['dep'], "v" => $_POST['vil'],  "par" => $_POST['pa']));
+                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an  AND departement_code = :dp AND village_code = :v  AND parcelle_code = :par ");
+                            $sqlcp->execute(array("an" => $_POST['camp'], "dp" => $_POST['dep'], "v" => $_POST['vil'],  "par" => $_POST['pa']));
 
                         }
                     }else{
 
                         if ($_POST['vil'] == 'Tous' or $_POST['vil'] == 'vide') {
-                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND id_passage_periode = :p AND parcelle_code = :par ");
-                            $sqlcp->execute(array("an" => $_POST['camp'], "dl" => $_SESSION['zone'], "dp" => $_POST['dep'], "p" => $_POST['idpa'], "par" => $_POST['pa']));
+                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND departement_code = :dp AND id_passage_periode = :p AND parcelle_code = :par ");
+                            $sqlcp->execute(array("an" => $_POST['camp'],"dp" => $_POST['dep'], "p" => $_POST['idpa'], "par" => $_POST['pa']));
                         } else {
-                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND delegation_code = :dl AND departement_code = :dp AND village_code = :v  AND id_passage_periode = :p AND parcelle_code = :par ");
-                            $sqlcp->execute(array("an" => $_POST['camp'], "dl" => $_SESSION['zone'], "dp" => $_POST['dep'], "v" => $_POST['vil'], "p" => $_POST['idpa'], "par" => $_POST['pa']));
+                            $sqlcp = $bdd->prepare("SELECT *  FROM comptage_cacaos WHERE  an_campagne = :an AND departement_code = :dp AND village_code = :v  AND id_passage_periode = :p AND parcelle_code = :par ");
+                            $sqlcp->execute(array("an" => $_POST['camp'],  "dp" => $_POST['dep'], "v" => $_POST['vil'], "p" => $_POST['idpa'], "par" => $_POST['pa']));
 
                         }
 
@@ -384,7 +384,7 @@ if (isset($_POST['camp']) ) {
 
                         <input type="text" value="<?php echo  $_POST['dep']; ?>" id="departement" hidden>
                         <input type="text" value="<?php echo  $_POST['vil']; ?>" id="village" hidden>
-                        <input type="text" value="<?php echo  $_SESSION['zone']; ?>" id="delegation" hidden>
+                        <input type="text" value="<?php echo  $_POST['del']; ?>" id="delegation" hidden>
                     </div>
 
                     <br>

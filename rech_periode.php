@@ -1,5 +1,4 @@
 <?php // Connection à la base de données
-session_start();
 error_reporting(0);
 include '../connexion/connectpg.php';
 include '../connexion/function.php';
@@ -8,7 +7,7 @@ if (isset($_POST['codecam']) ) {
 
     $i = 0;
     $camp=$_POST['codecam'];
-?>
+    ?>
 
 
     <option  >Tous</option>

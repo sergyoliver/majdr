@@ -4,8 +4,12 @@
 include '../connexion/connectpg.php';
 include '../connexion/function.php';
 
-if (isset($_POST['camp'])  ) {
-   $periode= $_POST['p'];
+if (isset($_POST['camp'] ) ) {
+    $periode= $_POST['p'];
+    $tab_camp = explode('-',$_POST['camp']);
+    $and = intval($tab_camp[0])-1;
+    $anf = intval($tab_camp[1])-1;
+    $new_an_1= $and."-".$anf;
 
 
     /// liste des passage d'un comptage
@@ -13,13 +17,14 @@ if (isset($_POST['camp'])  ) {
     {
         include '../connexion/connectpg.php';
         // include '../connexion/function.php';
-        $rsan = $bdd->prepare("SELECT id_passage_periode FROM comptage_cacaos,passage_periodes WHERE passage_periodes.id=comptage_cacaos.id_passage_periode and passage_periodes.type_periode= :tp AND  an_campagne =:an  GROUP BY id_passage_periode,type_periode ");
+        $rsan = $bdd->prepare("SELECT id_passage_periode FROM comptage_cacaos,passage_periodes WHERE passage_periodes.id=comptage_cacaos.id_passage_periode and passage_periodes.type_periode= :tp AND  an_campagne =:an  GROUP BY id_passage_periode,type_periode ", array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
         $rsan->execute(array("an" => $camp,"tp" => $periode));
-       // $rowan = $rsan->rowCount();
+        // $rowan = $rsan->rowCount();
         $row = $rsan->fetchAll(PDO::FETCH_ASSOC);
         sort($row);
         return $row;
     }
+
 
     function somme_cpte_del($nomtab, $codedp, $idp, $an)
     {
@@ -27,7 +32,8 @@ if (isset($_POST['camp'])  ) {
         // include '../connexion/function.php';
         $rest = substr($codedp, 0, 3);
         $codeapp = 'K' . $rest;
-      // echo "select sum(fruit_a) as x,sum(fruit_b) as y,sum(fruit_c) as r, sum(fruit_a+fruit_b+fruit_c) as t, sum(fruit_d) as d FROM $nomtab where comptage_cacaos.code_dep = '$codedp' and supp=0 and idpassage=$idp and an_campagne ='$an'";
+        //echo "select sum(fruit_a) as x,sum(fruit_b) as y,sum(fruit_c) as r FROM $nomtab where comptage_cacaos.parcelle_code like '$codeapp%' and supp=0 and idpassage=$idp ";
+
         $rsc = $bdd->prepare("select sum(fruit_a) as x,sum(fruit_b) as y,sum(fruit_c) as r, sum(fruit_a+fruit_b+fruit_c) as t, sum(fruit_d) as d FROM $nomtab where comptage_cacaos.departement_code = '$codedp' and supp=0 and id_passage_periode=$idp and an_campagne ='$an'");
         $rsc->execute();
         $rowc = $rsc->fetchAll(PDO::FETCH_ASSOC);
@@ -42,14 +48,14 @@ if (isset($_POST['camp'])  ) {
         $codeapp = 'K' . $rest;
         // echo "select avg(pese_f) as p FROM $nomtab where comptage_cacaos.parcelle_code like '$codeapp%' and supp=0 and idpassage=$idp";
 
-        $rsp = $bdd->prepare("select sum(pese_f) as p FROM $nomtab where comptage_cacaos.departement_code = '$codedp'  and supp=0 and id_passage_periode=$idp and an_campagne ='$an'");
+        $rsp = $bdd->prepare("select sum(pese_f) as p FROM $nomtab where comptage_cacaos.parcelle_code like '$codeapp%' and supp=0 and id_passage_periode=$idp and an_campagne ='$an'");
         $rsp->execute();
         $rowp = $rsp->fetchAll(PDO::FETCH_ASSOC);
         return $rowp;
     }
 
-    //echo "Nbre de passage". var_dump(liste_passage($_POST['camp']));
-    $tabliste = liste_passage($_POST['camp'],$periode);
+    //echo "Nbre de passage". var_dump(liste_passage($new_an_1));
+    $tabliste = liste_passage($new_an_1,$periode);
     //var_dump($tabliste);
    // echo count($tabliste);
     $nbre_decomptage = count($tabliste);
@@ -65,7 +71,7 @@ if (isset($_POST['camp'])  ) {
     <div class="col-lg-12 input_field_sections table-responsive">
 
     <div class="input-group">
-        <h3 style="text-align: center;font-weight: bold">Synthèse des fruits collectés durant la campagne <?php echo  $_POST['camp'] ?>  de la periode <?php echo  strtoupper($periode) ?>  </h3>
+        <h3 style="text-align: center;font-weight: bold">Synthèse des fruits collectés durant la campagne <?php echo  $new_an_1 ?>  de la periode <?php echo  strtoupper($periode) ?> </h3>
     <table id="example2" class="table table-striped table-bordered table_res dataTable " >
     <thead>
     <tr>
@@ -142,10 +148,9 @@ if (isset($_POST['camp'])  ) {
         $tab_sumx = $tab_sumy = $tab_sumr = $tab_sumt = array();
 
         $iddel = $rowdel['code_delegation'];
-       /* $sqldep = $bdd->prepare("SELECT * FROM departements WHERE delegation_code = :d ");
-        $sqldep->execute(array("d" => $iddel));*/
 
-        $sqldep1 = $bdd->prepare("SELECT * FROM departements WHERE delegation_code = :d  and code_departement IN (SELECT comptage_cacaos.departement_code  from comptage_cacaos WHERE comptage_cacaos.delegation_code='$iddel' and comptage_cacaos.supp=0)");
+
+        $sqldep1 = $bdd->prepare("SELECT * FROM departements WHERE delegation_code = :d  and code_departement IN (SELECT comptage_cacaos.departement_code  from comptage_cacaos WHERE comptage_cacaos.delegation_code='$iddel' and comptage_cacaos.supp=0)", array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL));
         $sqldep1->execute(array("d" => $iddel));
         $nbdep = $sqldep1->rowCount();
 
@@ -159,33 +164,32 @@ if (isset($_POST['camp'])  ) {
 
         <?php while ($rowdp = $sqldep1->fetch()) {
 
-           // $codedep = $rowdp['designation'];
+            //$codedep = $rowdp['designation'];
             $codedep = $rowdp['code_departement'];
-
             for ($zt = 1; $zt <= $nbre_decomptage; $zt++) {
                 $mz = $zt - 1;
 
                 if ($zt == 1) {
-                    $list1 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[0]['id_passage_periode'], $_POST['camp']);
+                    $list1 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[0]['id_passage_periode'], $new_an_1);
                 }
                 if ($zt == 2) {
-                    $list2 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[1]['id_passage_periode'], $_POST['camp']);
+                    $list2 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[1]['id_passage_periode'], $new_an_1);
                 }
                 if ($zt == 3) {
-                    $list3 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[2]['id_passage_periode'], $_POST['camp']);
-                    $listp3 = somme_cpte_poid('comptage_cacaos', $codedep, $tabliste[2]['id_passage_periode'], $_POST['camp']);
+                    $list3 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[2]['id_passage_periode'], $new_an_1);
+                    $listp3 = somme_cpte_poid('comptage_cacaos', $codedep, $tabliste[2]['id_passage_periode'], $new_an_1);
                 }
                 if ($zt == 4) {
-                    $list4 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[3]['id_passage_periode'], $_POST['camp']);
-                    $listp4 = somme_cpte_poid('comptage_cacaos', $codedep, $tabliste[3]['id_passage_periode'], $_POST['camp']);
+                    $list4 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[3]['id_passage_periode'], $new_an_1);
+                    $listp4 = somme_cpte_poid('comptage_cacaos', $codedep, $tabliste[3]['id_passage_periode'], $new_an_1);
                 }
                 if ($zt == 5) {
-                    $list5 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[4]['id_passage_periode'], $_POST['camp']);
-                    $listp5 = somme_cpte_poid('comptage_cacaos', $codedep, $tabliste[4]['id_passage_periode'], $_POST['camp']);
+                    $list5 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[4]['id_passage_periode'], $new_an_1);
+                    $listp5 = somme_cpte_poid('comptage_cacaos', $codedep, $tabliste[4]['id_passage_periode'], $new_an_1);
                 }
                 if ($zt == 6) {
-                    $list6 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[5]['id_passage_periode'], $_POST['camp']);
-                    $listp6 = somme_cpte_poid('comptage_cacaos', $codedep, $tabliste[5]['id_passage_periode'], $_POST['camp']);
+                    $list6 = somme_cpte_del('comptage_cacaos', $codedep, $tabliste[5]['id_passage_periode'], $new_an_1);
+                    $listp6 = somme_cpte_poid('comptage_cacaos', $codedep, $tabliste[5]['id_passage_periode'], $new_an_1);
                 }
 
 
