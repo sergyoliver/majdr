@@ -51,7 +51,7 @@
                         <form class="form-horizontal login_validator" id="form_inline_validator" action=""  method="post" enctype="multipart/form-data">
 
                             <div class="row">
-                                <div class="col-lg-2 input_field_sections">
+                                <div class="col-lg-4 input_field_sections">
                                     <h5>Campagne</h5>
                                     <div class="input-group">
                                         <select class="form-control chzn-select" name="camp" id="camp" onchange="affiche_periode(this.value)" >
@@ -74,7 +74,7 @@
                                     </div>
 
                                 </div>
-                                <div class="col-lg-2 input_field_sections">
+                                <div class="col-lg-4 input_field_sections">
                                     <h5>Periode</h5>
                                     <div class="input-group">
                                         <select class="form-control chzn-select" name="periode" id="periode"  onchange="affiche_passage(this.value)"  >
@@ -85,7 +85,7 @@
                                     </div>
 
                                 </div>
-                                <div class="col-lg-2 input_field_sections">
+                                <div class="col-lg-4 input_field_sections">
                                     <h5>Passage</h5>
                                     <div class="input-group">
                                         <select class="form-control chzn-select" name="passage" id="passage"   >
@@ -97,18 +97,18 @@
 
                                 </div>
 
-                                <div class="col-lg-2 input_field_sections">
+                                <div class="col-lg-3 input_field_sections">
                                     <h5>Departement</h5>
                                     <div class="input-group">
-                                        <select class="form-control chzn-select" name="dep" id="dep" onchange="check_village(this.value)" >
+                                        <select class="form-control chzn-select" name="del" id="del" onchange="check_dep(this.value)" >
                                             <option selected disabled>Selectionner</option>
                                             <?php
 
-                                            $rsdep = $bdd->prepare("select id,code_departement,designation from departements  ORDER BY designation asc");
-                                            $rsdep->execute();
-                                            while($rowdep = $rsdep->fetch()) {
+                                            $rsdel = $bdd->prepare("select  * from delegations  ORDER BY designation asc");
+                                            $rsdel->execute();
+                                            while($rowdel = $rsdel->fetch()) {
                                                 ?>
-                                                <option value="<?php echo $rowdep['code_departement'] ?>"><?php echo $rowdep['designation'] ?></option>
+                                                <option value="<?php echo $rowdel['code_delegation'] ?>"><?php echo $rowdel['designation'] ?></option>
 
                                             <?php }  ?>
 
@@ -116,7 +116,17 @@
                                     </div>
 
                                 </div>
-                                <div class="col-lg-2 input_field_sections">
+                                <div class="col-lg-3 input_field_sections">
+                                    <h5>Departement</h5>
+                                    <div class="input-group">
+                                        <select class="form-control chzn-select" name="dep" id="dep" onchange="check_village(this.value)" >
+                                            <option selected disabled>Selectionner</option>
+
+                                        </select>
+                                    </div>
+
+                                </div>
+                                <div class="col-lg-3 input_field_sections">
                                     <h5>Village</h5>
                                     <div class="input-group">
                                         <select class="form-control chzn-select" name="vil" id="vil" onchange="check_parcelle(this.value)" >
@@ -126,7 +136,7 @@
                                     </div>
 
                                 </div>
-                                <div class="col-lg-2 input_field_sections">
+                                <div class="col-lg-3 input_field_sections">
                                     <h5>Parcelle</h5>
                                     <div class="input-group">
                                         <select class="form-control chzn-select" name="par" id="par" onchange="check_parcelleindiv(this.value)" >
@@ -378,29 +388,23 @@
     }
 
 
-    function rech_par_dep(str) {
+    function check_dep(str) {
         //il fait la mise a jour du prix de base et l'observation
 
         var xhr2;
         var form_data2 = new FormData();
         form_data2.append("del", str);
-        form_data2.append("camp", $('#camp').val());
-        form_data2.append("idpa", $('#passage').val());
+
 
         if (window.XMLHttpRequest) xhr2 = new XMLHttpRequest();
         else if (window.ActiveXObject) xhr2 = new ActiveXObject('Microsoft.XMLHTTP');
-        xhr2.open('POST', "data/rech_cpte_cacaodel.php", true);
+        xhr2.open('POST', "data/rech_departement.php", true);
         xhr2.send(form_data2);
         xhr2.onreadystatechange = function() {
             if (xhr2.readyState == 4 && xhr2.status == 200) {
 
-                document.getElementById("retour_table").innerHTML = this.responseText;
-                $('#example2').DataTable( {
-                    "dom": "<'row'<'col-md-6 col-xs-12'l><'col-md-6 col-xs-12'f>r><'table-responsive't><'row'<'col-md-5 col-xs-12'i><'col-md-7 col-xs-12'p>>",
-                    "pagingType": "full_numbers"
-                } );
-                affiche_dep(str)
-
+                document.getElementById("dep").innerHTML = this.responseText;
+                $("#dep").trigger("chosen:updated");
             }else{
 
             }
