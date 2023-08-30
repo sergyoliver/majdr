@@ -223,8 +223,6 @@
                         <br>
                     </div>
 
-
-
                 </div>
                 <div class="col-lg-4 " >
                     <div class="card">
@@ -283,7 +281,38 @@
 
                 </div>
             </div>
+            <div class="col-lg-8 m-t-35">
+                <table class="table table-striped  table-bordered table_res dataTable  " style="padding: 10px">
+                    <tr  style=" font-size: 16px; font-weight: bold; color: darkred">
+                        <td>#</td>
+                        <td>Delegations</td>
+                        <td>Comptage transfere</td>
+                    </tr>
+                    <?php
+                    $idel=1;
+                    $sqlccacao_dr = $bdd->prepare("SELECT count(id) as a, delegation_code  from comptage_cacaos WHERE  an_campagne = :an  and id_passage_periode = :p and supp=0  group by delegation_code ");
+                    $sqlccacao_dr->execute(array("an" => $row_last_passage['campagne'],"p" => $row_last_passage['id']));
+                   while ($rowccacao_dr = $sqlccacao_dr->fetch()) {
+                        $del_code = $rowccacao_dr['delegation_code'];
+                    $sql_del = $bdd->prepare("select * from delegations where code_delegation= :dl ");
+                    $sql_del->execute(array("dl" => $del_code));
+                   $row_del = $sql_del->fetch();
+                       ?>
+                       <tr style=" font-size: 16px; font-weight: bold">
+                           <td><?php echo $idel ?></td>
+                           <td style="text-decoration: underline"><a href="?page=detail_comptage&idel=<?php echo $row_del['id'] ?>&camp=<?php echo $row_last_passage['campagne'] ?>&pas=<?php echo $row_last_passage['id'] ?>"><?php echo $row_del['designation'] ?></a></td>
+                           <td><?php echo separer_montant($rowccacao_dr['a']) ?></td>
+                       </tr>
+                       <?php
+                            $idel++; }
+                    ?>
+                </table>
+
+            </div>
         </div>
+
+
+
         <div class="row">
             <div class="col-lg-12 m-t-35">
                 <div class="col-lg-6 m-t-35">
