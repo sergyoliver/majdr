@@ -6,16 +6,18 @@ include '../connexion/function.php';
 
 if (isset($_POST['id']) ) {
 
-    $rsql1 = $bdd->prepare('UPDATE  comptage_cacaos SET fruit_a=:fruit_a, fruit_b =:fruit_b, fruit_c=:fruit_c,
-fruit_d=:fruit_d,pertes_a=:pertes_a,pertes_b=:pertes_b,fe=:fe,flo=:flo,Noue=:Noue,id_modification=:id_modification,
-date_modification=:date_modification,raison_supp=:raison_supp
+    $rsql1 = $bdd->prepare('UPDATE  comptage_cacaos SET 
+fruit_a=:fruit_a, fruit_b =:fruit_b, fruit_c=:fruit_c,fruit_d=:fruit_d,
+pertes_a=:pertes_a,pertes_b=:pertes_b,fe=:fe,flo=:flo,Noue=:Noue,pese_f=:pese_f,Production_oct_mars=:Production_oct_mars,Production_avril_sept=:Production_avril_sept,
+id_modification=:id_modification,
+date_modification=:date_modification,raison_supp=:raison_supp,obsr=:obsr
                                WHERE id = :id ');
-$tb_upd=array('fruit_a' => $_POST['a'],'fruit_b' => $_POST['b'], 'fruit_c' => $_POST['c'],
-    'pertes_a' => $_POST['pa'], 'pertes_b' => $_POST['pb'], 'fe' => $_POST['fe'],'flo' => $_POST['flo'],'Noue' => $_POST['noue'],
+$tb_upd = array('fruit_a' => $_POST['a'],'fruit_b' => $_POST['b'], 'fruit_c' => $_POST['c'], 'fruit_d' => $_POST['d'],
+    'pertes_a' => $_POST['pa'], 'pertes_b' => $_POST['pb'], 'fe' => $_POST['fe'],'flo' => $_POST['flo'],'Noue' => $_POST['noue'],'pese_f' => $_POST['pesef'],'Production_oct_mars' => $_POST['prodom'],'Production_avril_sept' => $_POST['prodas'],
     'id_modification'=> $_SESSION['id'], 'date_modification'=> gmdate("Y-m-d H:i:s"),'raison_supp'=>$_POST['obs'],'obsr'=>$_POST['obsr'],'id'=>$_POST['id']);
-    var_dump($tb_upd);
+    //var_dump($tb_upd);
 
-    $tab = $rsql1->execute();
+    $tab = $rsql1->execute($tb_upd);
 
 
     ?>
@@ -210,6 +212,31 @@ $tb_upd=array('fruit_a' => $_POST['a'],'fruit_b' => $_POST['b'], 'fruit_c' => $_
                                         </span>
                                             </div>
                                         </div>
+
+                                        <div class="col-lg-3 input_field_sections">
+                                            <h5> Pesé </h5>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control"  name="pesef<?php echo $row['id']  ?>" id="pesef<?php echo $row['id']  ?>" value="<?php echo $row['pese_f']  ?>">
+                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
+                                        </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 input_field_sections">
+                                            <h5> Production_oct_mars </h5>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control"  name="prodom<?php echo $row['id']  ?>" id="prodom<?php echo $row['id']  ?>" value="<?php echo $row['Production_oct_mars']  ?>">
+                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
+                                        </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 input_field_sections">
+                                            <h5> Production_avril_sept </h5>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control"  name="prodas<?php echo $row['id']  ?>" id="prodas<?php echo $row['id']  ?>" value="<?php echo $row['Production_avril_sept']  ?>">
+                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
+                                        </span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="row" style="display: none">
 
@@ -246,30 +273,7 @@ $tb_upd=array('fruit_a' => $_POST['a'],'fruit_b' => $_POST['b'], 'fruit_c' => $_
                                             </div>
                                         </div>
 
-                                        <div class="col-lg-3 input_field_sections">
-                                            <h5> Pesé </h5>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control"  name="pesef<?php echo $row['id']  ?>" id="pesef<?php echo $row['id']  ?>" value="<?php echo $row['pese_f']  ?>">
-                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
-                                        </span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 input_field_sections">
-                                            <h5> Production_oct_mars </h5>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control"  name="prodom<?php echo $row['id']  ?>" id="prodom<?php echo $row['id']  ?>" value="<?php echo $row['Production_oct_mars']  ?>">
-                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
-                                        </span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 input_field_sections">
-                                            <h5> Production_avril_sept </h5>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control"  name="prodom<?php echo $row['id']  ?>" id="prodas<?php echo $row['id']  ?>" value="<?php echo $row['Production_avril_sept']  ?>">
-                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
-                                        </span>
-                                            </div>
-                                        </div>
+
 
 
                                     </div>

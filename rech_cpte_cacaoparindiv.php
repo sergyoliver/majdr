@@ -254,6 +254,30 @@ if (isset($_POST['camp']) ) {
                                         </span>
                                             </div>
                                         </div>
+                                        <div class="col-lg-3 input_field_sections">
+                                            <h5> Pesé </h5>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control"  name="pesef<?php echo $row['id']  ?>" id="pesef<?php echo $row['id']  ?>" value="<?php echo $row['pese_f']  ?>">
+                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
+                                        </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 input_field_sections">
+                                            <h5> Production_oct_mars </h5>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control"  name="prodom<?php echo $row['id']  ?>" id="prodom<?php echo $row['id']  ?>" value="<?php echo $row['Production_oct_mars']  ?>">
+                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
+                                        </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 input_field_sections">
+                                            <h5> Production_avril_sept </h5>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control"  name="prodom<?php echo $row['id']  ?>" id="prodas<?php echo $row['id']  ?>" value="<?php echo $row['Production_avril_sept']  ?>">
+                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
+                                        </span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="row" style="display: none">
 
@@ -290,30 +314,7 @@ if (isset($_POST['camp']) ) {
                                             </div>
                                         </div>
 
-                                        <div class="col-lg-3 input_field_sections">
-                                            <h5> Pesé </h5>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control"  name="pesef<?php echo $row['id']  ?>" id="pesef<?php echo $row['id']  ?>" value="<?php echo $row['pese_f']  ?>">
-                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
-                                        </span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 input_field_sections">
-                                            <h5> Production_oct_mars </h5>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control"  name="prodom<?php echo $row['id']  ?>" id="prodom<?php echo $row['id']  ?>" value="<?php echo $row['Production_oct_mars']  ?>">
-                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
-                                        </span>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-3 input_field_sections">
-                                            <h5> Production_avril_sept </h5>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control"  name="prodom<?php echo $row['id']  ?>" id="prodas<?php echo $row['id']  ?>" value="<?php echo $row['Production_avril_sept']  ?>">
-                                                <span class="input-group-addon"> <i class="fa fa-phone text-primary"></i>
-                                        </span>
-                                            </div>
-                                        </div>
+
 
 
                                     </div>
