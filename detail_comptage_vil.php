@@ -88,6 +88,16 @@ $i=1;
                                         $rowvil = $sqlvil->fetch();
                                     }
 
+                                    $rs_sp= $bdd->prepare('select * from sous_prefectures where code_sous_prefecture= :d ');
+                                    $rs_sp->execute(array('d' => $rowvil['sous_prefecture_code']  ));
+                                    $row_sp = $rs_sp->fetch();
+
+                                   
+                                    
+                                
+                                    $sqldep = $bdd->prepare("SELECT *  from departements WHERE code_departement= :c  ");
+                                    $sqldep->execute(array("c" => $row_sp['departement_code']));
+                                    $rowdep = $sqldep->fetch();
 
                                     $codepar= $row['parcelle_code'];
                                     $sqlparcelle = $bdd->prepare("SELECT *  from parcelles WHERE code_parcelle= :c  ");
